@@ -1,33 +1,21 @@
-const menuButton = document.querySelector('.menu-toggle');
-const nav = document.querySelector('.nav');
+const menuButton=document.querySelector('.menu-toggle');const nav=document.querySelector('.nav');menuButton?.addEventListener('click',()=>{const isOpen=nav.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(isOpen))});document.querySelectorAll('.nav a').forEach(link=>link.addEventListener('click',()=>{nav.classList.remove('open');menuButton?.setAttribute('aria-expanded','false')}));
+const revealItems=document.querySelectorAll('.reveal');if('IntersectionObserver'in window){const observer=new IntersectionObserver((entries,obs)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');obs.unobserve(entry.target)}})},{threshold:.12});revealItems.forEach(item=>observer.observe(item))}else revealItems.forEach(item=>item.classList.add('visible'));document.getElementById('year').textContent=new Date().getFullYear();
 
-menuButton?.addEventListener('click', () => {
-  const isOpen = nav.classList.toggle('open');
-  menuButton.setAttribute('aria-expanded', String(isOpen));
-});
-
-document.querySelectorAll('.nav a').forEach((link) => {
-  link.addEventListener('click', () => {
-    nav.classList.remove('open');
-    menuButton?.setAttribute('aria-expanded', 'false');
-  });
-});
-
-const revealItems = document.querySelectorAll('.reveal');
-
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-
-  revealItems.forEach((item) => observer.observe(item));
-} else {
-  revealItems.forEach((item) => item.classList.add('visible'));
-}
-
-document.getElementById('year').textContent = new Date().getFullYear();
+const launcher=document.querySelector('.chat-launcher');const panel=document.querySelector('.chat-panel');const closeChat=document.querySelector('.chat-close');const chatBody=document.getElementById('chatBody');const orderOpen=document.querySelector('[data-open-assistant]');
+const order={peca:'',publico:'',cor:'',tamanho:'',detalhes:''};
+function scrollChat(){chatBody.scrollTop=chatBody.scrollHeight}
+function bubble(text,type='bot'){const el=document.createElement('div');el.className=`chat-bubble ${type}`;el.innerHTML=text;chatBody.appendChild(el);scrollChat();return el}
+function choices(items,handler){const wrap=document.createElement('div');wrap.className='chat-choices';items.forEach(item=>{const b=document.createElement('button');b.type='button';b.textContent=item;b.addEventListener('click',()=>{wrap.querySelectorAll('button').forEach(x=>x.disabled=true);bubble(item,'user');setTimeout(()=>handler(item),250)});wrap.appendChild(b)});chatBody.appendChild(wrap);scrollChat()}
+function openAssistant(){panel.classList.add('open');panel.setAttribute('aria-hidden','false');launcher.classList.add('active');launcher.setAttribute('aria-expanded','true');if(!chatBody.dataset.started)startChat()}
+function closeAssistant(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');launcher.classList.remove('active');launcher.setAttribute('aria-expanded','false')}
+launcher?.addEventListener('click',()=>panel.classList.contains('open')?closeAssistant():openAssistant());closeChat?.addEventListener('click',closeAssistant);orderOpen?.addEventListener('click',openAssistant);
+function startChat(){chatBody.dataset.started='1';bubble('Olá! ♡ Eu sou o <strong>Assistente NCroch\'s</strong>. Posso te ajudar a imaginar e organizar sua encomenda.');setTimeout(()=>{bubble('Por onde você gostaria de começar?');choices(['🧶 Fazer uma encomenda','👗 Conhecer as peças','🎨 Como personalizar?','💬 Falar com a NCroch’s'],firstChoice)},350)}
+function firstChoice(choice){if(choice.includes('Fazer'))askPiece();else if(choice.includes('Conhecer')){bubble('A NCroch’s cria peças artesanais para diferentes estilos e momentos: moda feminina, masculina, infantil e bebê. Tudo é feito à mão.');setTimeout(()=>choices(['Quero fazer uma encomenda','Voltar ao início'],c=>c.includes('encomenda')?askPiece():restart()),300)}else if(choice.includes('personalizar')){bubble('Você pode definir modelo, tamanho, cores e detalhes. A ideia é usar uma referência como ponto de partida e criar algo com a sua identidade.');setTimeout(()=>choices(['Quero personalizar uma peça','Voltar ao início'],c=>c.includes('personalizar')?askPiece():restart()),300)}else contact()}
+function askPiece(){bubble('Perfeito! Que tipo de peça você está imaginando?');choices(['Vestido / conjunto','Blusa / camisa','Peça para bebê','Acessório','Outro modelo'],v=>{order.peca=v;askAudience()})}
+function askAudience(){bubble('E para quem será essa criação?');choices(['Adulto feminino','Adulto masculino','Infantil','Bebê'],v=>{order.publico=v;askColor()})}
+function askColor(){bubble('Já tem uma preferência de cor?');choices(['Rosa / rosé','Azul','Tons neutros','Colorido','Quero escolher depois'],v=>{order.cor=v;askSize()})}
+function askSize(){bubble('E o tamanho? Se ainda não souber, tudo bem.');const wrap=document.createElement('form');wrap.className='chat-input-row';wrap.innerHTML='<input aria-label="Tamanho da peça" placeholder="Ex.: M, 6 anos, ainda não sei"><button>Continuar</button>';wrap.addEventListener('submit',e=>{e.preventDefault();const input=wrap.querySelector('input');order.tamanho=input.value.trim()||'A definir';wrap.querySelectorAll('input,button').forEach(x=>x.disabled=true);bubble(order.tamanho,'user');askDetails()});chatBody.appendChild(wrap);scrollChat();wrap.querySelector('input').focus()}
+function askDetails(){bubble('Último detalhe ♡ Quer acrescentar algo sobre a peça?');const wrap=document.createElement('form');wrap.className='chat-input-row';wrap.innerHTML='<input aria-label="Detalhes da encomenda" placeholder="Ex.: borboletas, laço, referência..."><button>Finalizar</button>';wrap.addEventListener('submit',e=>{e.preventDefault();const input=wrap.querySelector('input');order.detalhes=input.value.trim()||'Sem observações';wrap.querySelectorAll('input,button').forEach(x=>x.disabled=true);bubble(order.detalhes,'user');summary()});chatBody.appendChild(wrap);scrollChat();wrap.querySelector('input').focus()}
+function summary(){const text=`<strong>Seu pedido ficou assim:</strong><br>Peça: ${order.peca}<br>Para: ${order.publico}<br>Cor: ${order.cor}<br>Tamanho: ${order.tamanho}<br>Detalhes: ${order.detalhes}`;bubble(text);setTimeout(()=>{bubble('Prontinho! Você pode levar esse resumo para a NCroch’s e continuar o atendimento por mensagem.');choices(['Enviar pelo Instagram ↗','Montar outro pedido'],c=>c.includes('Instagram')?contact(true):restart())},350)}
+function contact(openNow=false){if(openNow){const msg=`Olá! Montei uma ideia de encomenda no site da NCroch's:%0A%0A• Peça: ${encodeURIComponent(order.peca)}%0A• Para: ${encodeURIComponent(order.publico)}%0A• Cor: ${encodeURIComponent(order.cor)}%0A• Tamanho: ${encodeURIComponent(order.tamanho)}%0A• Detalhes: ${encodeURIComponent(order.detalhes)}`;navigator.clipboard?.writeText(decodeURIComponent(msg.replaceAll('%0A','\n')));window.open('https://www.instagram.com/ncrochs/','_blank','noopener');bubble('Abri o Instagram da NCroch’s. O resumo do pedido também foi preparado para você copiar se precisar.');return}bubble('Você pode falar diretamente com a NCroch’s pelo Instagram.');const a=document.createElement('a');a.className='chat-contact';a.href='https://www.instagram.com/ncrochs/';a.target='_blank';a.rel='noopener noreferrer';a.textContent='Abrir @ncrochs no Instagram ↗';chatBody.appendChild(a);scrollChat()}
+function restart(){Object.keys(order).forEach(k=>order[k]='');chatBody.innerHTML='';delete chatBody.dataset.started;startChat()}
