@@ -2,6 +2,12 @@
 
 Site institucional e portfólio digital da **NCroch's**, marca de peças artesanais em crochê.
 
+[![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange)](#status)
+[![Categoria](https://img.shields.io/badge/projeto-portfólio%20digital-blue)](#sobre-o-projeto)
+[![Stack](https://img.shields.io/badge/stack-HTML%20%7C%20CSS%20%7C%20JavaScript-yellow)](#tecnologias)
+
+---
+
 ## V1
 
 A primeira versão estabelece a identidade visual e a estrutura principal da Home:
